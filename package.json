@@ -28,6 +28,7 @@
     "@unocss/preset-typography": "^0.45.13",
     "@unocss/preset-web-fonts": "^0.45.13",
     "@unocss/reset": "^0.45.18",
+    "@vueuse/sound": "^1.1.7",
     "chart.js": "^3.9.1",
     "maz-ui": "^3.0.2",
     "sweetalert2": "^11.4.32",

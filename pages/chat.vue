@@ -3,65 +3,64 @@ definePageMeta({
     middleware: ['auth'],
 })
 
+
 const supabase = useSupabaseClient()
-
-
+const { play } = useSound('../assets/not.mp3')
 const name = useCookie("nameCookie")
 
 const editName = ref(false)
 const newName = ref(name.value)
 const massage = ref("")
 
+const massages = ref([])
+
 const saveName = () => {
     name.value = newName.value
     editName.value = false
 }
 
-
 const sendMassage = async () => {
-    const { data, error } = await supabase
-        .from('massages')
-        .insert([{ name: name.value, body: massage.value }])
-    if (error) {
-        console.log(error)
+    if (massage.value) {
+        const { data, error } = await supabase
+            .from('massages')
+            .insert([{ name: name.value, body: massage.value }])
+        if (error) {
+            console.log(error)
+        }
     }
+
+
+    massage.value = ""
 }
 
-
-async function getMassages() {
-    const { data, error } = await supabase
+const fetchData = async () => {
+    await supabase
         .from('massages')
         .select('*')
-    if (error) {
-        console.log(error)
-    }
-    return data
+        .order('id', { ascending: false })
+        .then(({ data, error }) => {
+            if (error) {
+                console.log(error)
+            }
+            massages.value = data
+        })
 }
 
-const mySubscription = supabase
-    .from('massages')
-    .on('INSERT', (payload) => {
-        console.log('Change received!', payload)
-    })
-    .subscribe()
-
-watchEffect(async () => {
-
-    const data = await getMassages()
-
-    const mySubscription = supabase
-        .from('massages')
-        .on('INSERT', (payload) => {
-            console.log('Change received!', payload)
-        })
-        .subscribe()
-
-    console.log(mySubscription)
-
+onMounted(() => {
+    fetchData()
 })
 
 
+watchEffect(async () => {
 
+    await supabase
+        .from('massages')
+        .on('INSERT', (payload) => {
+            fetchData()
+            play()
+        })
+        .subscribe()
+})
 
 
 </script>
@@ -100,10 +99,20 @@ watchEffect(async () => {
             </div>
         </div>
         <div flex="lg:col basis-3/4" bg="blue" border="rounded-lg">
-            <div>
-                <MazBtn @click="getMassages" fab class="mt-2" size="md">
-                    <UiIcon icon="i-akar-icons:send" />
-                </MazBtn>
+            <div v-for="item in massages" key="item.id" m="2" border="rounded" bg="gray-3" flex="lg:~ row" justify="between">
+                <div flex="lg:~ row gap-2">
+                    <MazAvatar m="x-2" size="0.5rm" src="https://pbs.twimg.com/profile_images/598181608198381570/-cFG43y2_400x400.jpg" />
+                    <div m="y-3">{{item.name}}</div>
+                    <div m="y-3">
+                        {{item.body}}
+                    </div>
+                </div>
+                <div flex="lg:~ row gap-2" m="y-2">
+                    <div m="y-2">
+                        {{item.created_at.slice(0,10)}}
+                    </div>
+                    <UiIcon m="y-2 r-2" text="lg" icon="i-healthicons:i-schedule-school-date-time-outline" />
+                </div>
             </div>
         </div>
     </div>

@@ -1,27 +1,15 @@
 <script lang="ts" setup>
-import { watchEffect } from '#imports'
-const name = ref()
-//save the name in the cookie
+const name = ref('')
 const nameCookie = useCookie("nameCookie");
 
 const saveName = () => {
     const nameCookie = useCookie("nameCookie");
     nameCookie.value = name.value
-    // if (nameCookie.value) {
-    //     navigateTo("chat");
-    // }
-
-}
-
-watchEffect(() => {
-    if (name.value) {
-        navigateTo("chat");
+    if (nameCookie.value) {
+        navigateTo("/chat")
     }
-})
-
-
+}
 </script>
-
 <template>
     <main>
         <div m="y-2" flex="lg:~ row gap-2" justify="content lg:center">
@@ -34,7 +22,5 @@ watchEffect(() => {
                 <MazBtn @click="saveName" class="mt-2" size="sm">Go</MazBtn>
             </div>
         </div>
-
-
     </main>
 </template>
